@@ -1,0 +1,19 @@
+{
+
+  "description": "Render LaTeX math parts in your markdown files when viewing them on GitHub",
+  "manifest_version": 2,
+  "name": "LatexMathifyGitHub",
+  "version": "1.0",
+  "homepage_url": "https://github.com/AnonymerNiklasistanonym/LatexMathifyGitHub",
+  "icons": {
+    "48": "icons/icon-48.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.github.com/*"],
+	  "css": ["katex/katex.min.css"],
+      "js": ["katex/katex.min.js","katex/auto-render.min.js","enableMarkdownLatexMath.js"]
+    }
+  ]
+
+}
