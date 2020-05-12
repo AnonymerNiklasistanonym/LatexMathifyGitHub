@@ -5,7 +5,7 @@ Render LaTeX math parts in your markdown files when viewing them on GitHub.
 **Firefox**:
 
 1. Package extension:
-   1. Run the [``package_extension.sh`](package_extension.sh) script
+   1. Run the [`package_extension.sh`](package_extension.sh) script
 2. Load extension (multiple possibilities)
    1. Temporary (is deleted after restart)
       1. Go to `about:addons` and click the icon at the top right with the option `Debug Add-on`
