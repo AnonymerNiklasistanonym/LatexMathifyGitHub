@@ -2,7 +2,7 @@
   "description": "Render LaTeX math parts in your markdown files when viewing them on GitHub",
   "manifest_version": 2,
   "name": "LatexMathifyGitHub",
-  "version": "1.0",
+  "version": "1.1",
   "homepage_url": "https://github.com/AnonymerNiklasistanonym/LatexMathifyGitHub",
   "icons": {
     "48": "icons/icon-48.png"
