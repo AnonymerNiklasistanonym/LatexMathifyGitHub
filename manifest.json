@@ -1,5 +1,4 @@
 {
-
   "description": "Render LaTeX math parts in your markdown files when viewing them on GitHub",
   "manifest_version": 2,
   "name": "LatexMathifyGitHub",
@@ -8,12 +7,24 @@
   "icons": {
     "48": "icons/icon-48.png"
   },
+  "content_security_policy": "default-src 'self'",
   "content_scripts": [
     {
-      "matches": ["*://*.github.com/*"],
-	  "css": ["katex/katex.min.css"],
-      "js": ["katex/katex.min.js","katex/auto-render.min.js","enableMarkdownLatexMath.js"]
+      "matches": [
+        "*://*.github.com/*"
+      ],
+      "css": [
+        "katex/katex.min.css"
+      ],
+      "js": [
+        "katex/katex.min.js",
+        "katex/auto-render.min.js",
+        "enableMarkdownLatexMath.js"
+      ],
+      "run_at": "document_idle"
     }
+  ],
+  "web_accessible_resources": [
+    "katex/fonts/*.woff2"
   ]
-
 }
