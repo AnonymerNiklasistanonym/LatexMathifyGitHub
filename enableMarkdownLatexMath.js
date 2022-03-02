@@ -28,7 +28,7 @@ browser.storage.sync.get({
 		const nodesMarkdownBody = Array.from(document.getElementsByClassName("markdown-body"))
 		for (const node of nodesMarkdownBody) {
 			if (options.debug) {
-				console.debug(debugPrefix + "add .markdown-body node:", node)
+				console.debug(debugPrefix + "add .markdown-body [GitHub] node:", node)
 			}
 			nodesToMathify.push({ name: "GitHub:class=markdown-body", node: node })
 		}
@@ -36,7 +36,7 @@ browser.storage.sync.get({
 		const nodesMarkdownTitle = Array.from(document.getElementsByClassName("markdown-title"))
 		for (const node of nodesMarkdownTitle) {
 			if (options.debug) {
-				console.debug(debugPrefix + "add .markdown-title node:", node)
+				console.debug(debugPrefix + "add .markdown-title [GitHub] node:", node)
 			}
 			nodesToMathify.push({ name: "GitHub:class=markdown-title", node: node })
 		}
@@ -48,13 +48,21 @@ browser.storage.sync.get({
 			}
 			nodesToMathify.push({ name: "GitLab:class=md", node: node })
 		}
-		// > Find GitLab Markdown titles
+		// > Find GitLab Markdown titles (issue)
 		const nodesMarkdownTitleGitLab = Array.from(document.getElementsByClassName("qa-title"))
 		for (const node of nodesMarkdownTitleGitLab) {
 			if (options.debug) {
 				console.debug(debugPrefix + "add .qa-title [GitLab] node:", node)
 			}
 			nodesToMathify.push({ name: "GitLab:class=qa-title", node: node })
+		}
+		// > Find GitLab Markdown titles (issue list)
+		const nodesMarkdownTitleListGitLab = Array.from(document.getElementsByClassName("issue-title-text"))
+		for (const node of nodesMarkdownTitleListGitLab) {
+			if (options.debug) {
+				console.debug(debugPrefix + "add .issue-title-text [GitLab] node:", node)
+			}
+			nodesToMathify.push({ name: "GitLab:class=issue-title-text", node: node })
 		}
 		return nodesToMathify
 	}
@@ -160,6 +168,9 @@ browser.storage.sync.get({
 		console.error(debugPrefix + "Nothing was found to observe!")
 	}
 	if (observeTarget) {
+		if (options.debug) {
+			observeTarget.style.border = `5px dotted ${options.debugColor}`
+		}
 		observer.observe(observeTarget, {
 			attributes: true,
 			attributeOldValue: true,
