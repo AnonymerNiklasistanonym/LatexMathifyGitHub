@@ -1,5 +1,5 @@
 {
-  "description": "Render LaTeX math parts in your markdown files when viewing them on GitHub",
+  "description": "Render LaTeX math parts in your markdown files when viewing them on GitHub/GitLab",
   "manifest_version": 2,
   "name": "LatexMathifyGitHub",
   "version": "1.2",
