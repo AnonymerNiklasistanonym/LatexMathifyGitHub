@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-git archive --format zip --output master.zip master
+mkdir -p dist
+git archive --format zip --output dist/source_code.zip master
