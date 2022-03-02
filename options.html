@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Test Extension Options</title>
+</head>
+
+<body>
+
+    Debug color:
+    <select id="debugColor">
+        <option value="red">red</option>
+        <option value="green">green</option>
+        <option value="blue">blue</option>
+    </select>
+
+    <br>
+
+    <label>
+        <input type="checkbox" id="debug">
+        Enable Debugging
+    </label>
+
+    <br>
+
+    <label>
+        <input type="checkbox" id="mathmlOutput">
+        Force MathML (without HTML) output
+    </label>
+
+    <br>
+
+    <button id="load">Load</button>
+    <button id="reset">Reset</button>
+    <button id="save">Save</button>
+    <div id="status"></div>
+
+    <br><br><br>
+
+    <button id="browser">Show browser api (used for debugging if browser api can be found/accessed)</button>
+    <div id="statusBrowser"></div>
+
+
+    <script src="options.js"></script>
+</body>
+
+</html>

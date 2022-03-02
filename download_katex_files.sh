@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-KATEX_VERSION="0.12.0"
+KATEX_VERSION="0.15.2"
 BASE_URL="https://cdn.jsdelivr.net/npm/katex@${KATEX_VERSION}/dist"
 KATEX_LOCAL_DIR="katex"
 KATEX_FILES=(

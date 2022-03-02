@@ -1,2 +1,8 @@
-
+# Ignore created zip files
 *.zip
+# Ignore IDE files
+.vscode/
+# Ignore dist files
+dist/
+# Ignore delete directories
+delete/
