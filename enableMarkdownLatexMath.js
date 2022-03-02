@@ -27,13 +27,17 @@ browser.storage.sync.get({
 		// > Find GitHub Markdown document rendering nodes
 		const nodesMarkdownBody = Array.from(document.getElementsByClassName("markdown-body"));
 		for (const node of nodesMarkdownBody) {
-			console.debug(debugPrefix + "add .markdown-body node:", node);
+			if (options.debug) {
+				console.debug(debugPrefix + "add .markdown-body node:", node);
+			}
 			nodesToMathify.push({ name: "GitHub:class=markdown-body.parentNode", node: node })
 		}
 		// > Find GitHub Markdown titles rendering nodes
 		const nodesMarkdownTitle = Array.from(document.getElementsByClassName("markdown-title"));
 		for (const node of nodesMarkdownTitle) {
-			console.debug(debugPrefix + "add .markdown-title node:", node);
+			if (options.debug) {
+				console.debug(debugPrefix + "add .markdown-title node:", node);
+			}
 			nodesToMathify.push({ name: "GitHub:class=markdown-title.parentNode", node: node })
 		}
 		return nodesToMathify;
@@ -60,50 +64,49 @@ browser.storage.sync.get({
 			// Fix newlines
 			// \$\$(?:(?:.|\n)*?)(.*?)(?:(?:.|\n)*?)\$\$
 			node.innerHTML = node.innerHTML.replace(/\$\$((.|\n)+?)\$\$/g, (_match, groupMathArea, a, b) => {
+				// In case the user is looking at a diff don't render with KaTeX
+				if (groupMathArea.match(/<del>/) && groupMathArea.match(/<ins>/)) {
+					return _match
+				}
 				const newMathArea = groupMathArea.replace(/\s(\\)(\s|\n|$)/g, (__match, _groupSingleSlash) => {
 					return " \\\\ "
 				}).replace(/<br>/g, (__match) => {
 					return "\n"
 				}).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\n/g, " ")
-				console.debug(debugPrefix + "$$...$$ > KaTeX render math area", { mathArea: newMathArea });
+				if (options.debug) {
+					console.debug(debugPrefix + "$$...$$ > KaTeX render math area", { mathArea: newMathArea });
+				}
 				const katexHtmlOutput = katex.renderToString(newMathArea, {
 					displayMode: true,
 					output: options.mathmlOutput ? "mathml" : "htmlAndMathml"
 				});
-				console.debug(debugPrefix + "$$...$$ > Update math area", { from: groupMathArea, to: newMathArea, katexHtmlOutput  });
+				if (options.debug) {
+					console.debug(debugPrefix + "$$...$$ > Update math area", {
+						from: groupMathArea, to: newMathArea,
+						katexHtmlOutput
+					});
+				}
 				return katexHtmlOutput;
 			})
 			node.innerHTML = node.innerHTML.replace(/\$((.|\n)+?)\$/g, (_match, groupMathArea, a, b) => {
+				// In case the user is looking at a diff don't render with KaTeX
+				if (groupMathArea.match(/<del>/) && groupMathArea.match(/<ins>/)) {
+					return _match
+				}
 				const newMathArea = groupMathArea.replace(/\s(\\)(\s|\n|$)/g, (__match, _groupSingleSlash) => {
 					return " \\\\ "
 				}).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\n/g, " ")
-				console.debug(debugPrefix + "$...$ > KaTeX render math area", { mathArea: newMathArea });
+				if (options.debug) {
+					console.debug(debugPrefix + "$...$ > KaTeX render math area", { mathArea: newMathArea });
+				}
 				const katexHtmlOutput = katex.renderToString(newMathArea, {
 					output: options.mathmlOutput ? "mathml" : "htmlAndMathml"
 				});
-				console.debug(debugPrefix + "$...$ > Update math area", { from: groupMathArea, to: newMathArea, katexHtmlOutput  });
+				if (options.debug) {
+					console.debug(debugPrefix + "$...$ > Update math area", { from: groupMathArea, to: newMathArea, katexHtmlOutput });
+				}
 				return katexHtmlOutput;
 			})
-
-			console.debug(debugPrefix + "Render LaTeX math in markdown document that was updated", node.innerHTML);
-			try {
-				// BUG: GitHub renders // as / so multiline code blocks just break
-				// BUG: \left \right is somehow broken in commands
-				renderMathInElement(node, {
-					delimiters: [{
-						left: "$$",
-						right: "$$",
-						display: true
-					}, {
-						left: "$",
-						right: "$",
-						display: false
-					}]
-				});
-				console.debug(debugPrefix + "Render LaTeX math in markdown document that was updated is finished", node.innerHTML);
-			} catch (e) {
-				console.error(debugPrefix + "renderMathInElement has thrown an error:", e);
-			}
 		});
 		if (nodesToMathify.length === 0) {
 			console.debug(debugPrefix + "No HTML node to render was found");
@@ -117,6 +120,29 @@ browser.storage.sync.get({
 		// If the page is not yet loaded wait and then run the render function
 		window.addEventListener('load', renderMath);
 	}
+
+	// Create an observer instance linked to the callback function
+	const observer = new MutationObserver((mutationsList, _observer) => {
+		// Use traditional 'for loops' for IE 11
+		for (const mutation of mutationsList) {
+			if (options.debug) {
+				console.debug(debugPrefix + `Mutation detected: ${mutation.type}`, mutation)
+			}
+			renderMath();
+		}
+	});
+
+	// Start observing the target node for configured mutations
+	observer.observe(document.getElementsByClassName("repository-content")[0], {
+		attributes: true,
+		attributeOldValue: true,
+		attributeFilter: ['class'],
+		characterData: true,
+		subtree: true
+	});
+
+	// The observer can be disconnected but there is no reason to
+	//observer.disconnect();
 
 	console.debug(debugPrefix + "Add-on script end <Promise>");
 
