@@ -29,7 +29,7 @@ const saveOptions = () => {
         status.textContent = `Options saved (${JSON.stringify(options)})`
         setTimeout(() => {
             status.textContent = ''
-        }, 2000)
+        }, 10000)
     })
 }
 
@@ -47,7 +47,7 @@ const loadOptions = () => {
         status.textContent = `Options loaded (${JSON.stringify(options)})`
         setTimeout(() => {
             status.textContent = ''
-        }, 2000)
+        }, 10000)
 
         document.getElementById('debug').checked = options.debug
         document.getElementById('debugColor').value = options.debugColor
@@ -70,7 +70,7 @@ const resetOptions = () => {
         status.textContent = `Options were reset to default (${JSON.stringify(defaultOptions)})`
         setTimeout(() => {
             status.textContent = ''
-        }, 2000)
+        }, 10000)
 
         document.getElementById('debug').checked = defaultOptions.debug
         document.getElementById('debugColor').value = defaultOptions.debugColor
