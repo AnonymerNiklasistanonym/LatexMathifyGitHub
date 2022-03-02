@@ -1,6 +1,7 @@
 const defaultOptions = {
-    debugColor: 'red',
     debug: false,
+    debugColor: 'red',
+    enableObserver: true,
     mathmlOutput: false
 }
 
@@ -8,16 +9,18 @@ const defaultOptions = {
  * Save options from HTML inputs to local browser storage and show a HTML status text
  */
 const saveOptions = () => {
-    const debugColor = document.getElementById('debugColor').value
     const debug = document.getElementById('debug').checked
+    const debugColor = document.getElementById('debugColor').value
+    const enableObserver = document.getElementById('enableObserver').checked
     const mathmlOutput = document.getElementById('mathmlOutput').checked
     if (typeof browser === "undefined") {
         // Make browser calls work on chrome
         var browser = chrome
     }
     const options = {
-        debugColor,
         debug,
+        debugColor,
+        enableObserver,
         mathmlOutput
     }
     browser.storage.sync.set(options, () => {
@@ -46,8 +49,9 @@ const loadOptions = () => {
             status.textContent = ''
         }, 2000)
 
-        document.getElementById('debugColor').value = options.debugColor
         document.getElementById('debug').checked = options.debug
+        document.getElementById('debugColor').value = options.debugColor
+        document.getElementById('enableObserver').checked = options.enableObserver
         document.getElementById('mathmlOutput').checked = options.mathmlOutput
     })
 }
@@ -68,8 +72,9 @@ const resetOptions = () => {
             status.textContent = ''
         }, 2000)
 
-        document.getElementById('debugColor').value = defaultOptions.debugColor
         document.getElementById('debug').checked = defaultOptions.debug
+        document.getElementById('debugColor').value = defaultOptions.debugColor
+        document.getElementById('enableObserver').checked = options.enableObserver
         document.getElementById('mathmlOutput').checked = defaultOptions.mathmlOutput
     })
 }

@@ -2,14 +2,17 @@ const debugPrefix = "LatexMathifyGitHub > "
 
 console.debug(debugPrefix + "Add-on script start")
 
+const defaultOptions = {
+	debug: false,
+	debugColor: 'red',
+	enableObserver: true,
+	mathmlOutput: false
+}
+
 if (typeof browser === "undefined") {
 	var browser = chrome
 }
-browser.storage.sync.get({
-	debugColor: 'red',
-	debug: false,
-	mathmlOutput: false
-}).then(options => {
+browser.storage.sync.get(defaultOptions).then(options => {
 	console.debug(debugPrefix + "Add-on script start <Promise>", options)
 
 	if (options.debug) {
@@ -145,43 +148,97 @@ browser.storage.sync.get({
 		window.addEventListener('load', renderMath)
 	}
 
-	// Create an observer instance linked to the callback function
-	const observer = new MutationObserver((mutationsList, _observer) => {
-		// Use traditional 'for loops' for IE 11
-		for (const mutation of mutationsList) {
-			if (options.debug) {
-				console.debug(debugPrefix + `Mutation detected: ${mutation.type}`, mutation)
+	if (options.enableObserver) {
+
+		let count = 0;
+		let lastUrl = location.href
+
+		const mutationLimit = 5
+
+		// Create an observer instance linked to the callback function
+		const observer = new MutationObserver((mutationsList, _observer) => {
+			count++;
+
+			if (location.href !== lastUrl) {
+				lastUrl =  location.href
+				count = 0
+				if (options.debug) {
+					console.debug(debugPrefix + `Location change detected`, lastUrl)
+				}
 			}
-			renderMath()
+
+			// Stop watching for changes if there are many changes
+			if (count > mutationLimit) {
+				if (options.debug) {
+					console.debug(debugPrefix + `Too many mutations detected: stop observer`)
+				}
+				return
+			}
+
+			// Use traditional 'for loops' for IE 11
+			for (const mutation of mutationsList) {
+				if (options.debug) {
+					console.debug(debugPrefix + `Mutation detected: ${mutation.type}`, mutation)
+				}
+				renderMath()
+			}
+		})
+
+		setInterval(() => {
+			// Reset count every 10 seconds
+			count = 0
+
+			if (options.debug) {
+				console.debug(debugPrefix + "Mutation limit was reset after 10 seconds")
+			}
+		}, 10000)
+
+		// Start observing the target node for configured mutations
+		const gitlabMain = document.getElementById("content-body")
+		const githubMain = document.getElementsByClassName("repository-content")
+		let observeTarget = undefined
+		if (gitlabMain) {
+			observeTarget = gitlabMain
+		} else if (githubMain && githubMain.length > 0) {
+			observeTarget = githubMain[0]
+		} else {
+			console.error(debugPrefix + "Nothing was found to observe!")
 		}
+		if (observeTarget) {
+			if (options.debug) {
+				observeTarget.style.border = `5px dotted ${options.debugColor}`
+			}
+			observer.observe(observeTarget, {
+				attributes: true,
+				attributeOldValue: true,
+				attributeFilter: ['class'],
+				characterData: true,
+				subtree: true
+			})
+		}
+
+		// The observer can be disconnected but there is no reason to
+		//observer.disconnect()
+
+	}
+
+	window.addEventListener('locationchange', () => {
+		console.debug(debugPrefix + "Detected a location change")
+		count = 0
+		renderMath()
 	})
 
-	// Start observing the target node for configured mutations
-	const gitlabMain = document.getElementById("content-body")
-	const githubMain = document.getElementsByClassName("repository-content")
-	let observeTarget = undefined
-	if (gitlabMain) {
-		observeTarget = gitlabMain
-	} else if (githubMain && githubMain.length > 0) {
-		observeTarget = githubMain[0]
-	} else {
-		console.error(debugPrefix + "Nothing was found to observe!")
-	}
-	if (observeTarget) {
-		if (options.debug) {
-			observeTarget.style.border = `5px dotted ${options.debugColor}`
-		}
-		observer.observe(observeTarget, {
-			attributes: true,
-			attributeOldValue: true,
-			attributeFilter: ['class'],
-			characterData: true,
-			subtree: true
-		})
-	}
+	window.addEventListener('popstate', () => {
+		console.debug(debugPrefix + "Detected a popstate change")
+		count = 0
+		renderMath()
+	})
 
-	// The observer can be disconnected but there is no reason to
-	//observer.disconnect()
+	window.addEventListener('hashchange', () => {
+		console.debug(debugPrefix + "Detected a hash change")
+		count = 0
+		renderMath()
+	})
 
 	console.debug(debugPrefix + "Add-on script end <Promise>")
 
