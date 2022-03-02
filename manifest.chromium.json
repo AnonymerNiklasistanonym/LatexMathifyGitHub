@@ -16,7 +16,8 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.github.com/*"
+        "*://*.github.com/*",
+        "*://*.gitlab.com/*"
       ],
       "css": [
         "katex/katex.min.css"

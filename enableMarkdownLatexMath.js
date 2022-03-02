@@ -30,7 +30,7 @@ browser.storage.sync.get({
 			if (options.debug) {
 				console.debug(debugPrefix + "add .markdown-body node:", node);
 			}
-			nodesToMathify.push({ name: "GitHub:class=markdown-body.parentNode", node: node })
+			nodesToMathify.push({ name: "GitHub:class=markdown-body", node: node })
 		}
 		// > Find GitHub Markdown titles rendering nodes
 		const nodesMarkdownTitle = Array.from(document.getElementsByClassName("markdown-title"));
@@ -38,7 +38,23 @@ browser.storage.sync.get({
 			if (options.debug) {
 				console.debug(debugPrefix + "add .markdown-title node:", node);
 			}
-			nodesToMathify.push({ name: "GitHub:class=markdown-title.parentNode", node: node })
+			nodesToMathify.push({ name: "GitHub:class=markdown-title", node: node })
+		}
+		// > Find GitLab Markdown documents
+		const nodesMarkdownGitLab = Array.from(document.getElementsByClassName("md"));
+		for (const node of nodesMarkdownGitLab) {
+			if (options.debug) {
+				console.debug(debugPrefix + "add .md [GitLab] node:", node);
+			}
+			nodesToMathify.push({ name: "GitLab:class=md", node: node })
+		}
+		// > Find GitLab Markdown titles
+		const nodesMarkdownTitleGitLab = Array.from(document.getElementsByClassName("qa-title"));
+		for (const node of nodesMarkdownTitleGitLab) {
+			if (options.debug) {
+				console.debug(debugPrefix + "add .qa-title [GitLab] node:", node);
+			}
+			nodesToMathify.push({ name: "GitLab:class=qa-title", node: node })
 		}
 		return nodesToMathify;
 	}
@@ -133,13 +149,25 @@ browser.storage.sync.get({
 	});
 
 	// Start observing the target node for configured mutations
-	observer.observe(document.getElementsByClassName("repository-content")[0], {
-		attributes: true,
-		attributeOldValue: true,
-		attributeFilter: ['class'],
-		characterData: true,
-		subtree: true
-	});
+	const gitlabMain = document.getElementById("content-body")
+	const githubMain = document.getElementsByClassName("repository-content")
+	let observeTarget = undefined
+	if (gitlabMain) {
+		observeTarget = gitlabMain
+	} else if (githubMain && githubMain.length > 0) {
+		observeTarget = githubMain[0]
+	} else {
+		console.error(debugPrefix + "Nothing was found to observe!")
+	}
+	if (observeTarget) {
+		observer.observe(observeTarget, {
+			attributes: true,
+			attributeOldValue: true,
+			attributeFilter: ['class'],
+			characterData: true,
+			subtree: true
+		});
+	}
 
 	// The observer can be disconnected but there is no reason to
 	//observer.disconnect();
